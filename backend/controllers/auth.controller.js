@@ -29,14 +29,21 @@ export const signup = async (req, res, next) => {
       profilePic: gender === "male" ? boyProfilePic : girlProfilePic,
     });
 
-    await newUser.save();
+    if (newUser) {
+      await newUser.save();
 
-    return res.status(201).json({
-      _id: newUser._id,
-      username: newUser.username,
-      fullName: newUser.fullName,
-      profilePic: newUser.profilePic,
-    });
+      return res.status(201).json({
+        _id: newUser._id,
+        username: newUser.username,
+        fullName: newUser.fullName,
+        profilePic: newUser.profilePic,
+      });
+    } else {
+      const error = "Invalid user data";
+      error.statusCode = 500;
+
+      throw error;
+    }
   } catch (error) {
     next(error);
   }
