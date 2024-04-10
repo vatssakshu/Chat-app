@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 dotenv.config();
 
@@ -22,7 +22,8 @@ mongoose
   })
   .catch((err) => console.log(err));
 
-app.use("api/auth", authRoutes);
+app.use(express.json());
+app.use("/api/auth", authRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
