@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
 import generateTokenAndSetCookie from "../utils/generateToken.js";
+
 export const signup = async (req, res, next) => {
   try {
     const { fullName, username, password, confirmPassword, gender } = req.body;
@@ -43,9 +44,29 @@ export const signup = async (req, res, next) => {
     next(error);
   }
 };
-export const login = (req, res) => {
-  console.log("login user");
+export const login = async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+    const validUser = await User.findOne({ username });
+
+    if (!validUser) return next(errorHandler(400, "Invalid credentials"));
+
+    const validPassword = await bcryptjs.compare(password, validUser.password);
+
+    if (!validPassword) return next(errorHandler(401, "Wrong credentials!"));
+
+    generateTokenAndSetCookie(validUser._id, res, next);
+    res.status(200).json({
+      _id: validUser._id,
+      username: validUser.username,
+      fullName: validUser.fullName,
+      profilePic: validUser.profilePic,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
+
 export const logout = (req, res) => {
   console.log("login user");
 };
