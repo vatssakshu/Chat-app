@@ -1,20 +1,17 @@
 import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
+import { errorHandler } from "../utils/error.js";
+import generateTokenAndSetCookie from "../utils/generateToken.js";
 export const signup = async (req, res, next) => {
   try {
     const { fullName, username, password, confirmPassword, gender } = req.body;
-    if (password !== confirmPassword) {
-      const error = new Error("Password do not match");
-      error.statusCode = 400;
-      throw error;
-    }
+    if (password !== confirmPassword)
+      return next(errorHandler(400, "Passwords do not match"));
 
     const user = await User.findOne({ username });
 
     if (user) {
-      const error = "User already exists";
-      error.statusCode = 400;
-      throw error;
+      return next(errorHandler(400, "User already exists"));
     }
     const salt = await bcryptjs.genSalt(10);
     const hashedPassword = bcryptjs.hashSync(password, salt);
@@ -30,6 +27,7 @@ export const signup = async (req, res, next) => {
     });
 
     if (newUser) {
+      generateTokenAndSetCookie(newUser._id, res, next);
       await newUser.save();
 
       return res.status(201).json({
@@ -39,10 +37,7 @@ export const signup = async (req, res, next) => {
         profilePic: newUser.profilePic,
       });
     } else {
-      const error = "Invalid user data";
-      error.statusCode = 500;
-
-      throw error;
+      return next(errorHandler(500, "Invalid user data"));
     }
   } catch (error) {
     next(error);
