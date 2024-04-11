@@ -1,8 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 
 import authRoutes from "./routes/auth.routes.js";
+import messageRoutes from "./routes/message.routes.js";
 
 const app = express();
 const PORT = 3000;
@@ -22,8 +24,10 @@ mongoose
   })
   .catch((err) => console.log(err));
 
+app.use(cookieParser());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
