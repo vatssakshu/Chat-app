@@ -1,6 +1,16 @@
 import { Link } from "react-router-dom";
+import useLogin from "../../hooks/useLogin";
+import { useState } from "react";
 
 const Login = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const { login, loading } = useLogin();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    await login(username, password);
+  };
   return (
     <div className="flex flex-col items-center justify-center min-w-96 mx-auto">
       <div className="w-full p-6 rounded-lg shadow-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10">
@@ -8,7 +18,7 @@ const Login = () => {
           Login
           <span className="text-slate-300"> Zoom Chat</span>
         </h1>
-        <form>
+        <form onSubmit={handleSubmit}>
           <div>
             <label className="label p-2">
               <span className="text-base label-text">Username</span>
@@ -17,6 +27,10 @@ const Login = () => {
               type="text"
               placeholder="Enter username"
               className="w-full input input-bordered h-10"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+              }}
             />
           </div>
 
@@ -28,6 +42,10 @@ const Login = () => {
               type="password"
               placeholder="Enter Password"
               className="w-full input input-bordered h-10"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
             />
           </div>
           <Link
