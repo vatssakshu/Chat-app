@@ -3,27 +3,30 @@ import toast from "react-hot-toast";
 import { useAuthContext } from "../context/AuthContext";
 
 const useLogin = () => {
-  const { setAuthUser } = useAuthContext();
   const [loading, setLoading] = useState(false);
+  const { setAuthUser } = useAuthContext();
+
   const login = async (username, password) => {
-    const success = handleInputErrors({
-      username,
-      password,
-    });
+    const success = handleInputErrors(username, password);
     if (!success) return;
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
-      const data = await res.json();
 
+      const data = await res.json();
       if (data.error) {
-        console.log(data.error);
+        throw new Error(data.error);
+      }
+      if (data.statusCode === 400) {
+        throw new Error(data.message);
+      }
+
+      if (data.statusCode === 401) {
+        throw new Error(data.message);
       }
 
       localStorage.setItem("chat-user", JSON.stringify(data));
@@ -34,14 +37,14 @@ const useLogin = () => {
       setLoading(false);
     }
   };
-  return { login, loading };
-};
 
+  return { loading, login };
+};
 export default useLogin;
 
-function handleInputErrors({ username, password }) {
+function handleInputErrors(username, password) {
   if (!username || !password) {
-    toast.error("Please fill all the fields");
+    toast.error("Please fill in all fields");
     return false;
   }
 
