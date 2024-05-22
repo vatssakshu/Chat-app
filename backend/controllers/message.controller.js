@@ -44,11 +44,11 @@ export const getMessages = async (req, res, next) => {
       participants: { $all: [senderId, userToChatId] },
     }).populate("messages"); //Not the Reference but the actual message
 
-    if (!conversation) return next(errorHandler(200, ""));
+    if (!conversation) throw new Error("");
 
     const messages = conversation.messages;
     res.status(200).json(messages);
   } catch (error) {
-    next(error);
+    return;
   }
 };
